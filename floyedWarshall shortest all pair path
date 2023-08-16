@@ -1,0 +1,89 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define endl "\n";
+typedef long long ll;
+typedef vector<int> vi;
+
+const int N = 503;
+int adj[N][N];
+ll dis[N][N];
+int n, m, q;
+const ll inf = 1e17;
+void floyed_warshall()
+{
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= n; j++)
+            if (adj[i][j] == -1)
+                dis[i][j] = inf;
+            else
+                dis[i][j] = adj[i][j];
+
+    // for (int i = 1; i <= n; i++)
+    // {
+    //     for (int j = 1; j <= n; j++)
+    //         cout << dis[i][j] << ' ';
+    //     cout << endl;
+    // }
+
+    for (int k = 1; k <= n; k++)
+        for (int i = 1; i <= n; i++)
+            for (int j = 1; j <= n; j++)
+                // if (dis[i][k] != inf and dis[k][j] != inf)
+                dis[i][j] = min(dis[i][j], dis[i][k] + dis[k][j]);
+}
+
+void solve()
+{
+    memset(adj, -1, sizeof adj);
+    cin >> n >> m >> q;
+    while (m--)
+    {
+        int u, v, w;
+        cin >> u >> v >> w;
+        if (adj[u][v] != -1)
+        {
+            adj[u][v] = min(adj[u][v], w);
+            adj[v][u] = min(adj[v][u], w);
+        }
+        else
+        {
+            adj[u][v] = w;
+            adj[v][u] = w;
+        }
+        adj[u][u] = adj[v][v] = 0;
+    }
+    floyed_warshall();
+    // for (int i = 1; i <= n; i++)
+    // {
+    //     for (int j = 1; j <= n; j++)
+    //         cout << adj[i][j] << ' ';
+    //     cout << endl;
+    // }
+    while (q--)
+    {
+        int u, v;
+        cin >> u >> v;
+        ll ans = dis[u][v];
+        if (ans < inf)
+        {
+            cout << ans << endl
+        }
+        else
+            cout << -1 << endl;
+        // cout << ans << endl;
+    }
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    int t = 1, cs = 1;
+    // cin >> t;
+    while (t--)
+    {
+        // cout<<"Case "<<cs++<<": ";
+        solve();
+    }
+    return 0;
+}
