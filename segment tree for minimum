@@ -1,0 +1,106 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define endl "\n";
+typedef long long ll;
+typedef vector<int> vi;
+
+const int maxNode = 2e5 + 9;
+int a[maxNode];
+struct ST
+{
+#define lc (n << 1)
+#define rc ((n << 1) + 1)
+    const int inf = 1e9 + 7;
+    long long t[4 * maxNode];
+    ST()
+    {
+        memset(t, 0, sizeof(t));
+    }
+    inline void pull(int n)
+    {
+        t[n] = min(t[lc], t[rc]);
+    }
+    inline long long combine(long long a, long long b)
+    {
+        return min(a, b);
+    }
+    void build(int n, int b, int e)
+    {
+        if (b == e)
+        {
+            t[n] = a[b];
+            return;
+        }
+        int mid = (b + e) >> 1;
+        build(lc, b, mid);
+        build(rc, mid + 1, e);
+        pull(n);
+    }
+    void upd(int n, int b, int e, int i, int x)
+    {
+        if (b > i or e < i)
+            return;
+        if (b == e and b == i)
+        {
+            t[n] = x;
+            return;
+        }
+        int mid = (b + e) >> 1;
+        upd(lc, b, mid, i, x);
+        upd(rc, mid + 1, e, i, x);
+        pull(n);
+    }
+    long long query(int n, int b, int e, int i, int j)
+    {
+        if (b > j or e < i)
+            return inf;// this portion would be -inf for maximum.. here is a good change
+        if (b >= i and e <= j)
+            return t[n];
+        int mid = (b + e) >> 1;
+        return combine(query(lc, b, mid, i, j), query(rc, mid + 1, e, i, j));
+    }
+} seg;
+
+void solve()
+{
+    int n, q;
+    cin >> n >> q;
+    for (int i = 1; i <= n; i++)
+    {
+        cin >> a[i];
+        seg.upd(1, 1, n, i, a[i]);
+    }
+    // cout << seg.query(1, 1, n, 3, 3) << endl;
+    seg.build(1, 1, n);
+    while (q--)
+    {
+        int type;
+        cin >> type;
+        if (type == 1)
+        {
+            int k, u;
+            cin >> k >> u;
+            seg.upd(1, 1, n, k, u);
+        }
+        else
+        {
+            int l, r;
+            cin >> l >> r;
+            cout << seg.query(1, 1, n, l, r) << endl;
+        }
+    }
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    int t = 1, cs = 1;
+    // cin >> t;
+    while (t--)
+    {
+        // cout<<"Case "<<cs++<<": ";
+        solve();
+    }
+    return 0;
+}
