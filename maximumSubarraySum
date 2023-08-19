@@ -1,0 +1,127 @@
+//https://cses.fi/problemset/result/6835353/
+
+#include <bits/stdc++.h>
+using namespace std;
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+
+template <typename T>
+using o_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
+#define endl "\n";
+typedef long long ll;
+typedef vector<int> vi;
+
+const int N = 1e5 + 10;
+
+struct node
+{
+    ll pref = 0, suff = 0, sum = 0, ans;
+    // node(ll pre, ll suf, ll sum, ll ans)
+    // {
+    //     this->ans = ans;
+    //     this->pref = pre;
+    //     this->suff = suf;
+    //     this->sum = sum;
+    // }
+};
+
+node hudai;
+const int maxNode = 2e5 + 9;
+struct ST
+{
+#define lc (n << 1)
+#define rc ((n << 1) + 1)
+    node t[4 * maxNode];
+    ST()
+    {
+    }
+    inline void pull(int n)
+    {
+        t[n].pref = max(t[lc].pref, t[lc].sum + t[rc].pref);
+        t[n].suff = max(t[rc].suff, t[rc].sum + t[lc].suff);
+        t[n].sum = t[lc].sum + t[rc].sum;
+        t[n].ans = max(t[lc].ans, max(t[rc].ans, t[lc].suff + t[rc].pref));
+        // t[] t[n] = t[lc] + t[rc];
+    }
+    inline node combine(node a, node b)
+    {
+        node temp;
+        temp.pref = max(a.pref, a.sum + b.pref);
+        temp.suff = max(b.suff, b.sum + a.suff);
+        temp.sum = a.sum + b.sum;
+        temp.ans = max(a.ans, max(b.ans, a.suff + b.pref));
+        return temp;
+    }
+
+    void upd(int n, int b, int e, int i, int x)
+    {
+        if (b > i or e < i)
+            return;
+        if (b == e and b == i)
+        {
+            if (x <= 0)
+            {
+                t[n].pref = 0;
+                t[n].suff = 0;
+                t[n].sum = x;
+                t[n].ans = 0;
+            }
+            else
+            {
+                t[n].pref = x;
+                t[n].suff = x;
+                t[n].sum = x;
+                t[n].ans = x;
+            }
+            // t[n] = x;
+            return;
+        }
+        int mid = (b + e) >> 1;
+        upd(lc, b, mid, i, x);
+        upd(rc, mid + 1, e, i, x);
+        pull(n);
+    }
+    node query(int n, int b, int e, int i, int j)
+    {
+        if (b > j or e < i)
+            return hudai;
+        if (b >= i and e <= j)
+            return t[n];
+        int mid = (b + e) >> 1;
+        return combine(query(lc, b, mid, i, j), query(rc, mid + 1, e, i, j));
+    }
+} seg;
+
+void solve()
+{
+    int n, q;
+    cin >> n >> q;
+    for (int i = 1; i <= n; i++)
+    {
+        int x;
+        cin >> x;
+        seg.upd(1, 1, n, i, x);
+    }
+    while (q--)
+    {
+        int l, r;
+        cin >> l >> r;
+        seg.upd(1, 1, n, l, r);
+        cout << seg.query(1, 1, n, 1, n).ans << endl;
+    }
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    int t = 1, cs = 1;
+    // cin >> t;
+    while (t--)
+    {
+        // cout<<"Case "<<cs++<<": ";
+        solve();
+    }
+    return 0;
+}
