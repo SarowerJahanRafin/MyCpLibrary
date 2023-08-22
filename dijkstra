@@ -1,0 +1,113 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define endl "\n";
+typedef long long ll;
+typedef vector<int> vi;
+
+const int N = 1e5 + 10;
+const ll inf = 1e15 + 7;
+vector<pair<int, int>> adj[N];
+
+bool vis[N];
+int n, m;
+int path[N];
+// this function would return a vector,where vector[target] is the minimum distance from the source;
+vector<ll> dijkstra(int source)
+{
+    memset(path, -1, sizeof path);
+    memset(vis, 0, sizeof vis);
+    vector<ll> dis(n + 2, inf);
+    set<pair<ll, int>> s; // set to insert {dis,node};
+    s.insert({0, source});
+    dis[source] = 0;
+    path[source] = source;
+    while (!s.empty())
+    {
+
+        auto temp = *s.begin();
+        s.erase(s.begin());
+        int node = temp.second;
+        if (vis[node])
+            continue;
+        vis[node] = 1;
+        for (auto v : adj[node])
+        {
+
+            int child = v.first;
+            int wt = v.second;
+            if (!vis[child] and (dis[child] > dis[node] + wt))
+            {
+                dis[child] = dis[node] + wt;
+                // cout << child << " " << dis[child] << endl;
+                s.insert({dis[child], child});
+                path[child] = node;
+            }
+        }
+    }
+    return dis;
+}
+
+void solve()
+{
+    cin >> n >> m;
+    while (m--)
+    {
+        int u, v, w;
+        cin >> u >> v >> w;
+        adj[u].push_back({v, w});
+        // adj[v].push_back({u, w});
+    }
+    auto ans = dijkstra(1); // 0 is the source ;
+    // // for (int i = 2; i <= n; i++)
+    // // {
+    // //     cout << ans[i] << ' ';
+    // // }
+    // cout << endl;
+    // int way = path[n];
+    // if (way == -1)
+    // {
+    //     cout << -1 << endl;
+    // }
+    // else
+    // {
+    //     stack<int> final_ans;
+    //     final_ans.push(n);
+    //     // deque<int> final_path;
+    //     // cout << way << ' ';
+    //     while (way != 1)
+    //     {
+    //          // cout << way << ' ';
+    //         final_ans.push(way);
+    //         way = path[way];
+    //     }
+    //     final_ans.push(1);
+    //     while (!final_ans.empty())
+    //     {
+    //         cout << final_ans.top() << ' ';
+    //         final_ans.pop();
+    //     }
+    //     cout << endl;
+    // }
+
+    // for (int i = n; i >= 1; i--)
+    //     cout << path[i] << ' ';
+    for (int i = 1; i <= n; i++)
+    {
+        cout << ans[i] << ' ';
+    }
+    cout << endl;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    int t = 1, cs = 1;
+    // cin >> t;
+    while (t--)
+    {
+        // cout<<"Case "<<cs++<<": ";
+        solve();
+    }
+    return 0;
+}
