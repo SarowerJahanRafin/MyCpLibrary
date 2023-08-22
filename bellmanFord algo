@@ -1,0 +1,111 @@
+#include <bits/stdc++.h>
+using namespace std;
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+
+template <typename T>
+using oset = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
+#define endl "\n";
+typedef long long ll;
+typedef vector<int> vi;
+
+struct Edge
+{
+    int u, v, cost;
+};
+
+const int N = 1e5 + 10, inf = 1e9 + 7;
+vector<pair<int, int>> adj[N];
+
+int n, m;
+vector<Edge> edges;
+int par[N];
+int startingNode;
+vi d;
+void bellmanFord()
+{
+    d.assign(n + 1, inf);
+    memset(par, -1, sizeof par);
+    startingNode = 5;
+    par[startingNode] = 0; // nijei nijer parent kebol ei
+    // karo parent -1 or dis inf hoile se unvisited;
+    d[startingNode] = 0;
+    for (int i = 1; i < n; i++)
+    {
+        bool any = false;
+        for (auto e : edges)
+        {
+            if (d[e.u] < inf)
+            {
+                if (d[e.v] > d[e.u] + e.cost)
+                {
+                    d[e.v] = d[e.u] + e.cost;
+                    par[e.v] = e.u;
+                    any = 1;
+                    // d[e.v] = min(d[e.v], d[e.u] + e.cost);
+                }
+            }
+        }
+        if (!any)
+            break;
+    }
+    for (int i = 1; i <= n; i++)
+    {
+        cout << d[i] << ' ';
+    }
+    cout << endl;
+}
+
+void printPath(int target)
+{
+    if (d[target] == inf)
+        cout << "No path from " << startingNode << " to " << target << ".";
+    else
+    {
+        vector<int> path;
+        for (int cur = target; cur != 0; cur = par[cur])
+            path.push_back(cur);
+        reverse(path.begin(), path.end());
+
+        cout << "Path from " << startingNode << " to " << target << ": ";
+        for (int u : path)
+            cout << u << ' ';
+    }
+}
+
+void solve()
+{
+    cin >> n >> m;
+    for (int i = 1; i <= m; i++)
+    {
+        int u, v, w;
+        cin >> u >> v >> w;
+        adj[u].push_back({v, w});
+        Edge temp;
+        temp.cost = w, temp.u = u, temp.v = v;
+        edges.push_back(temp);
+        // adj[v].push_back({u, w});
+    }
+
+    bellmanFord();
+    printPath(1);
+    // for (auto e : edges)
+    // {
+    //     cout << e.u << "->" << e.v << " : " << e.cost << endl;
+    // }
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    int t = 1, cs = 1;
+    // cin >> t;
+    while (t--)
+    {
+        // cout<<"Case "<<cs++<<": ";
+        solve();
+    }
+    return 0;
+}
