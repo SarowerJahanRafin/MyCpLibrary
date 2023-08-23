@@ -1,0 +1,137 @@
+#include <bits/stdc++.h>
+using namespace std;
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+
+template <typename T>
+using oset = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
+#define endl "\n";
+typedef long long ll;
+typedef vector<int> vi;
+
+const int N = 500 + 10, inf = 1e9 + 7;
+vector<pair<int, int>> adj[N];
+int dis[N][N];
+int n, m;
+vector<vector<int>> edges;
+
+// bellmanFord to count the array;
+vector<int> bellmanFord()
+{
+    // FIRST  add a new element with all vertices to calculate the array with distance 0;
+    int newvertics = 0;
+    for (int i = 1; i <= n; i++)
+    {
+        edges.push_back({newvertics, i, 0});
+    }
+    // now calculate the shortest path from the new vartices to all the existing vertices using bellmanFord;
+    vi d(n + 1, inf);
+    int startingNode = 0;
+    d[startingNode] = 0;
+    for (int i = 1; i < n; i++)
+    {
+        bool any = true;
+        for (auto e : edges)
+        {
+            int u = e[0], v = e[1], w = e[2];
+            if (d[v] > d[u] + w)
+            {
+                d[v] = d[u] + w;
+                any = false;
+            }
+        }
+        if (any)
+            break;
+    }
+    return d;
+}
+// time to code dijkstra algorithm
+
+void dijkstra(int source)
+{
+
+    set<pair<int, int>> pq;
+    vector<bool> vis(n + 1, 0);
+    dis[source][source] = 0;
+    pq.insert({0, source});
+
+    while (!pq.empty())
+    {
+        auto front = *pq.begin();
+        int nod = front.second; // pq.top().second;
+        int edg = front.first;
+        pq.erase(pq.begin());
+        if (!vis[nod])
+        {
+            vis[nod] = 1;
+            for (auto e : adj[nod])
+            {
+                int child = e.first;
+                int weight = e.second;
+                if (dis[source][child] > dis[source][nod] + weight)
+                {
+                    dis[source][child] = dis[source][nod] + weight;
+                    pq.insert({dis[source][nod], child});
+                }
+            }
+        }
+    }
+}
+
+void solve()
+{
+    cin >> n >> m;
+    for (int i = 1; i <= m; i++)
+    {
+        int u, v, w;
+        cin >> u >> v >> w;
+        edges.push_back({u, v, w}); // u= edges[i].[0]; v=edges[i][1]; w= edges[i][2];
+    }
+    vector<int> c = bellmanFord();
+    for (auto &e : edges)
+    {
+        int u = e[0], v = e[1];
+        e[2] += c[u] - c[v];
+    }
+
+    for (auto e : edges)
+    {
+        int u = e[0], v = e[1], w = e[2];
+        adj[u].push_back({v, w});
+    }
+    // making path all the distance inf;
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= n; j++)
+            if (i != j)
+                dis[i][j] = inf;
+
+    for (int i = 1; i <= n; i++)
+        dijkstra(i);
+
+    for (int i = 1; i <= n; i++)
+    {
+        for (int j = 1; j <= n; j++)
+        {
+            if (dis[i][j] == inf)
+                cout << -1 << ' ';
+            else
+                cout << dis[i][j] << ' ';
+        }
+        cout << endl;
+    }
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    int t = 1, cs = 1;
+    // cin >> t;
+    while (t--)
+    {
+        // cout<<"Case "<<cs++<<": ";
+        solve();
+    }
+    return 0;
+}
