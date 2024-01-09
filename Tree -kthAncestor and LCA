@@ -1,0 +1,138 @@
+// 1. https://cses.fi/problemset/task/1687   kth ancestor
+// 2. https://cses.fi/problemset/task/1688/     lowest common ancestor
+
+#include <bits/stdc++.h>
+using namespace std;
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+
+template <typename T>
+using oset = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
+#define endl "\n";
+typedef long long ll;
+typedef vector<int> vi;
+
+const int maxNode = 2e5 + 10;
+vector<int> adj[maxNode];
+const int maxPower = 20;
+int ancestor[maxNode][maxPower]; //->maxPower=20 means:  (2^20 > 10^6)
+// ancestor[u][3] means the 2^3=8-th ancestor of the u node.
+// ancestor[u][0] is the parent of u , ==par[u];
+int depth[maxNode];
+
+void dfs(int u, int par)
+{
+    for (int i = 0; i < maxPower; i++)
+        ancestor[u][i] = -1; // means no (2^i)-th ancestor.
+
+    if (par != -1)
+    {
+        depth[u] = depth[par] + 1;
+        ancestor[u][0] = par; // 1st ancestor is the parent
+        // calculate the ancestor based on power of 2..
+        for (int i = 1; i < maxPower; i++)
+        {
+            int v = ancestor[u][i - 1];
+            if (v == -1)
+                break;
+            ancestor[u][i] = ancestor[v][i - 1];
+            // amr 4th ancestor hsse amr 2nd ancestor er 2nd ancestor;
+        }
+    }
+
+    for (auto v : adj[u])
+        if (v != par)
+            dfs(v, u);
+}
+
+int getAncestor_kth(int u, int k) // finds kth ancestor of u in log(n) time. if no ancestor, return -1
+{
+    for (int i = 0; i < maxPower; i++)
+    {
+        if (k & (1 << i))
+        {
+            u = ancestor[u][i];
+            if (u == -1)
+                return -1;
+        }
+    }
+    return u;
+}
+
+int lca(int u, int v)
+{
+
+    if (depth[u] > depth[v])
+    {
+        u = getAncestor_kth(u, depth[u] - depth[v]);
+    }
+    else if (depth[v] > depth[u])
+    {
+        v = getAncestor_kth(v, depth[v] - depth[u]);
+    }
+
+    if (u == v)
+        return u;
+
+    for (int i = maxPower - 2; i >= 0; i--)
+    {
+        if (ancestor[u][i] == ancestor[v][i])
+        {
+        }
+        else
+        {
+            u = ancestor[u][i];
+            v = ancestor[v][i];
+        }
+    }
+    return ancestor[u][0];
+}
+
+void solve()
+{
+    int n, q;
+    cin >> n >> q;
+    for (int i = 2; i <= n; i++)
+    {
+        // int u, v;
+        // cin >> u >> v;
+        // adj[u].push_back(v);
+        // adj[v].push_back(u);
+
+        int boss;
+        cin >> boss;
+        adj[boss].push_back(i);
+    }
+    dfs(1, -1);
+    // solution for the qus-1 in cses : company query -I.
+
+    // while (q--)
+    // {
+    //     int x, k;
+    //     cin >> x >> k;
+    //     cout << getAncestor_kth(x, k) << endl;
+    // }
+
+    // solution for the qus-2 in cses : comapany query -II
+    while (q--)
+    {
+        int u, v;
+        cin >> u >> v;
+        cout << lca(u, v) << endl;
+    }
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    int t = 1, cs = 1;
+    // cin >> t;
+    while (t--)
+    {
+        // cout<<"Case "<<cs++<<": ";
+        solve();
+    }
+    return 0;
+}
