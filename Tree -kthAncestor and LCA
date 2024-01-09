@@ -1,5 +1,6 @@
 // 1. https://cses.fi/problemset/task/1687   kth ancestor
 // 2. https://cses.fi/problemset/task/1688/     lowest common ancestor
+// 3. https://cses.fi/problemset/task/1135/   distance between two nodes in a tree (unweighted)
 
 #include <bits/stdc++.h>
 using namespace std;
@@ -95,14 +96,14 @@ void solve()
     cin >> n >> q;
     for (int i = 2; i <= n; i++)
     {
-        // int u, v;
-        // cin >> u >> v;
-        // adj[u].push_back(v);
-        // adj[v].push_back(u);
+        int u, v;
+        cin >> u >> v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
 
-        int boss;
-        cin >> boss;
-        adj[boss].push_back(i);
+        // int boss;
+        // cin >> boss;
+        // adj[boss].push_back(i);
     }
     dfs(1, -1);
     // solution for the qus-1 in cses : company query -I.
@@ -115,11 +116,20 @@ void solve()
     // }
 
     // solution for the qus-2 in cses : comapany query -II
+    // while (q--)
+    // {
+    //     int u, v;
+    //     cin >> u >> v;
+    //     cout << lca(u, v) << endl;
+    // }
+
+    // solution for the qus-3 in cses : distances queries
     while (q--)
     {
         int u, v;
         cin >> u >> v;
-        cout << lca(u, v) << endl;
+        int lowestAncestor = lca(u, v);
+        cout << depth[u] + depth[v] - 2 * depth[lowestAncestor] << endl;
     }
 }
 
