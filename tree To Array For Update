@@ -1,0 +1,146 @@
+//https://cses.fi/problemset/task/1137/
+
+#include <bits/stdc++.h>
+using namespace std;
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+
+template <typename T>
+using oset = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
+#define endl "\n";
+typedef long long ll;
+typedef vector<int> vi;
+const int N = 2e5 + 7;
+int a[N], sz[N], idx[N];
+vi adj[N];
+vector<pair<int, int>> vec;
+
+const int maxNode = 2e5 + 9;
+struct ST
+{
+#define lc (n << 1)
+#define rc ((n << 1) + 1)
+    long long t[4 * maxNode];
+    ST()
+    {
+        memset(t, 0, sizeof(t));
+    }
+    inline void pull(int n)
+    {
+        t[n] = t[lc] + t[rc];
+    }
+    inline long long combine(long long a, long long b)
+    {
+        return a + b;
+    }
+    void build(int n, int b, int e)
+    {
+        if (b == e)
+        {
+            t[n] = 0;
+            return;
+        }
+        int mid = (b + e) >> 1;
+        build(lc, b, mid);
+        build(rc, mid + 1, e);
+        pull(n);
+    }
+    void upd(int n, int b, int e, int i, int x)
+    {
+        if (b > i or e < i)
+            return;
+        if (b == e and b == i)
+        {
+            t[n] = x;
+            return;
+        }
+        int mid = (b + e) >> 1;
+        upd(lc, b, mid, i, x);
+        upd(rc, mid + 1, e, i, x);
+        pull(n);
+    }
+    long long query(int n, int b, int e, int i, int j)
+    {
+        if (b > j or e < i)
+            return 0;
+        if (b >= i and e <= j)
+            return t[n];
+        int mid = (b + e) >> 1;
+        return combine(query(lc, b, mid, i, j), query(rc, mid + 1, e, i, j));
+    }
+} seg;
+
+int dfs(int u, int par)
+{
+    sz[u] = 1;
+    // vec.push_back({u, a[u]});
+    vec.push_back({u, a[u]});
+    // cout << u << ' ' << a[u] << endl;
+    for (auto v : adj[u])
+    {
+        if (v != par)
+            sz[u] += dfs(v, u);
+    }
+    return sz[u];
+}
+
+void solve()
+{
+    memset(idx, 0, sizeof idx);
+    int n, q;
+    cin >> n >> q;
+
+    for (int i = 1; i <= n; i++)
+        cin >> a[i];
+    for (int i = 1; i < n; i++)
+    {
+        int u, v;
+        cin >> u >> v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+
+    dfs(1, -1);
+
+    for (int i = 1; i <= n; i++)
+    {
+        seg.upd(1, 1, n, i, vec[i - 1].second);
+        int uv = (vec[i - 1].first);
+        // cout << uv << endl;
+        // int uv = 1;
+        idx[uv] = i;
+    }
+
+    while (q--)
+    {
+        int type;
+        cin >> type;
+        if (type == 1)
+        {
+            int s, x;
+            cin >> s >> x;
+            seg.upd(1, 1, n, idx[s], x);
+        }
+        else
+        {
+            int s;
+            cin >> s;
+            cout << seg.query(1, 1, n, idx[s], idx[s] + sz[s] - 1) << endl;
+        }
+    }
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    int t = 1, cs = 1;
+    // cin >> t;
+    while (t--)
+    {
+        // cout<<"Case "<<cs++<<": ";
+        solve();
+    }
+    return 0;
+}
