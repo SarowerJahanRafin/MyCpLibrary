@@ -1,7 +1,7 @@
 // 1. https://cses.fi/problemset/task/1687   kth ancestor
 // 2. https://cses.fi/problemset/task/1688/     lowest common ancestor
 // 3. https://cses.fi/problemset/task/1135/   distance between two nodes in a tree (unweighted)
-
+// 4. https://cses.fi/problemset/task/1136/     counting path problem , how many times a node has been travelled ...
 #include <bits/stdc++.h>
 using namespace std;
 #include <ext/pb_ds/assoc_container.hpp>
@@ -90,6 +90,19 @@ int lca(int u, int v)
     return ancestor[u][0];
 }
 
+// val , path and dfs2 has only been used for counting path problems ( problem 4)
+int val[maxNode], path[maxNode];
+int dfs2(int u, int par)
+{
+    path[u] = val[u];
+    for (auto v : adj[u])
+    {
+        if (v != par)
+            path[u] += dfs2(v, u);
+    }
+    return path[u];
+}
+
 void solve()
 {
     int n, q;
@@ -106,6 +119,7 @@ void solve()
         // adj[boss].push_back(i);
     }
     dfs(1, -1);
+
     // solution for the qus-1 in cses : company query -I.
 
     // while (q--)
@@ -124,13 +138,32 @@ void solve()
     // }
 
     // solution for the qus-3 in cses : distances queries
+    // while (q--)
+    // {
+    //     int u, v;
+    //     cin >> u >> v;
+    //     int lowestAncestor = lca(u, v);
+    //     cout << depth[u] + depth[v] - 2 * depth[lowestAncestor] << endl;
+    // }
+
+    // solution for the qus-4 in cses : counting paths;
     while (q--)
     {
         int u, v;
         cin >> u >> v;
         int lowestAncestor = lca(u, v);
-        cout << depth[u] + depth[v] - 2 * depth[lowestAncestor] << endl;
+        val[u]++;
+        val[v]++;
+        val[lowestAncestor]--;
+        int parOfAncestor = ancestor[lowestAncestor][0];
+        val[parOfAncestor]--;
     }
+    dfs2(1, -1);
+    for (int i = 1; i <= n; i++)
+    {
+        cout << path[i] << ' ';
+    }
+    cout << endl;
 }
 
 int main()
