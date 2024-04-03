@@ -20,6 +20,7 @@ struct SuffixAutomaton
     vector<int> terminal;
     vector<long long> dp;
     vector<vector<int>> adj;
+    vector<ll> disSubstr;
     SuffixAutomaton() {}
     SuffixAutomaton(int n)
     {
@@ -32,6 +33,8 @@ struct SuffixAutomaton
         t[0].len = 0;
         t[0].link = -1;    // -1 means invalid ...which is only true for the root.
         t[0].firstpos = 0; //
+        disSubstr.resize(2 * n, 1);
+        disSubstr[0] = 0;
     }
     void extend(char c)
     {
@@ -157,6 +160,23 @@ struct SuffixAutomaton
         // so, you are sure that the patter exists and now root is the on the last character of the pattern, calculate the first position of the first character and return it
         return t[root].firstpos - n + 1;
     }
+
+    // DFS for counting distinct substring of the string
+    // https://cses.fi/problemset/task/2105/
+    void dfs(int u = 0)
+    {
+        for (int i = 0; i < 26; i++)
+        {
+            char ch = 'a' + i;
+            if (t[u].nxt.count(ch) != 0)
+            {
+                auto v = t[u].nxt[ch];
+                if (disSubstr[v] == 1)
+                    dfs(v);
+                disSubstr[u] += disSubstr[v];
+            }
+        }
+    }
 };
 
 int main()
@@ -172,15 +192,8 @@ int main()
         int n = s.size();
         SuffixAutomaton sa(n);
         sa.build(s);
-        int q;
-        cin >> q;
-        while (q--)
-        {
-            string temp;
-            cin >> temp;
-            int idx = sa.findFirstPos(temp);
-            cout << idx << endl;
-        }
+        sa.dfs();
+        cout << sa.disSubstr[0] << endl;
     }
     return 0;
 }
