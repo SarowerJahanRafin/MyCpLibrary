@@ -1,0 +1,61 @@
+// https://cses.fi/problemset/task/1753/
+
+#include <bits/stdc++.h>
+using namespace std;
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+
+template <typename T>
+using oset = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
+#define endl "\n";
+typedef long long ll;
+typedef vector<int> vi;
+typedef vector<ll> vl;
+
+const int N = 1e5 + 10;
+
+vector<int> z_function(string s)
+{
+    int n = (int)s.length();
+    vector<int> z(n);
+    for (int i = 1, l = 0, r = 0; i < n; ++i)
+    {
+        if (i <= r)
+            z[i] = min(r - i + 1, z[i - l]);
+        while (i + z[i] < n && s[z[i]] == s[i + z[i]])
+            ++z[i];
+        if (i + z[i] - 1 > r)
+            l = i, r = i + z[i] - 1;
+    }
+    return z;
+}
+
+void solve()
+{
+    string s, p;
+    cin >> s >> p;
+    string temp = p + '#' + s;
+    vi z = z_function(temp);
+    int cnt = 0;
+    for (int i = 0; i < z.size(); i++)
+    {
+        if (z[i] == p.size())
+            cnt++;
+    }
+    cout << cnt << endl;
+}
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    int t = 1, cs = 1;
+    // cin >> t;
+    while (t--)
+    {
+        // cout<<"Case "<<cs++<<": ";
+        solve();
+    }
+    return 0;
+}
