@@ -165,15 +165,41 @@ struct SuffixAutomaton
     // https://cses.fi/problemset/task/2105/
     void dfs(int u = 0)
     {
+        if (u)
+            disSubstr[u] = 1;
         for (int i = 0; i < 26; i++)
         {
             char ch = 'a' + i;
             if (t[u].nxt.count(ch) != 0)
             {
                 auto v = t[u].nxt[ch];
-                if (disSubstr[v] == 1)
+                if (disSubstr[v] == -1)
                     dfs(v);
                 disSubstr[u] += disSubstr[v];
+            }
+        }
+    }
+
+
+    //https://cses.fi/problemset/task/2108/
+    // find the k-th lexicographically smallest substring.
+    void findKthSubstr(string &result, int u, ll k)
+    {
+        if (k <= 0)
+            return;
+        for (int i = 0; i < 26; i++)
+        {
+            char ch = 'a' + i;
+            if (t[u].nxt.count(ch) == 0)
+                continue;
+            int v = t[u].nxt[ch];
+            if (disSubstr[v] < k)
+                k -= disSubstr[v];
+            else if (k > 0)
+            {
+                result.push_back(ch);
+                findKthSubstr(result, v, k - 1);
+                break;
             }
         }
     }
@@ -193,7 +219,15 @@ int main()
         SuffixAutomaton sa(n);
         sa.build(s);
         sa.dfs();
-        cout << sa.disSubstr[0] << endl;
+       // cout << sa.disSubstr[0] << endl;
+
+        ll k;
+        cin >> k;
+        string res = "";
+        sa.findKthSubstr(res, 0, k);
+
+        cout << res << endl;
+        
     }
     return 0;
 }
